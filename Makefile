@@ -3,7 +3,7 @@ CFLAGS =	-Wall -Wextra -Werror
 RM =		rm -f
 SRCS =		??
 OBJS =		${SRCS:.c=.o}
-NAME =		salut.exe
+NAME =		cacab.exe
 
 all: ${NAME}
 
@@ -17,8 +17,6 @@ re: fclean all
 
 .PHONY: all clean fclean re
 
-${NAME}: ${OBJS}
-	${CC} ${CFLAGS} ${OBJS} -o ${NAME}
 LEAKS =	valgrind -q --leak-check=full --track-origins=yes
 
-bon je vais pas faire les tests pour vous quand meme
+#bon je vais pas faire les tests pour vous quand meme

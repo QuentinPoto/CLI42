@@ -1,27 +1,42 @@
-use crate::get_current_working_dir;
+//use crate::get_current_working_dir;
 
-struct GitInit {
-    inf: bool, // aucune idee de quoi mettre ??
+pub struct GitInit {
+    //pub inf: bool, // aucune idee de quoi mettre ??
 }
 
-struct FilesInit {
-    a: bool, 
+pub struct FilesInit {}
+
+pub enum BinaryType {
+    Librairy,
+    Function,
+    Programme,
+}
+pub struct Makefile {
+    pub binary_name: String,
+    pub binary_type: BinaryType,
+    pub test: bool,
 }
 
-struct Makefile {
-    
-}
-
-struct Modules {
-    git: Option<GitInit>,
-    files: Option<FilesInit>,
-    makefile: Option<Makefile>,
+pub struct Modules {
+    pub git: Option<GitInit>,
+    pub files: Option<FilesInit>,
+    pub makefile: Option<Makefile>,
 }
 
 pub struct Project {
     pub name: String,
     pub directory: String,
-    pub modules: Modules,
+    pub modules: Option<Modules>,
+}
+
+impl Makefile {
+    pub fn new() -> Makefile {
+        Makefile {
+            binary_name: String::new(),
+            binary_type: BinaryType::Function,
+            test: false,
+        }
+    }
 }
 
 impl Project {
@@ -29,16 +44,25 @@ impl Project {
         Project {
             name: String::new(),
             directory: String::new(),
-            modules: Modules { git: None, files: None, makefile: None },
+            modules: Some(Modules {
+                git: None,
+                files: None,
+                makefile: None,
+            }),
         }
     }
+    /*
     pub fn prg_config(project_name: String) -> Project {
         let project_directory = get_current_working_dir();
         project_directory.push_str(&project_name);
         Project {
             name: project_name,
             directory: project_directory,
-            modules: Modules { git: None, files: true, makefile: true },
+            modules: Modules {
+                git: None,
+                files: true,
+                makefile: true,
+            },
         }
-    }
+    }*/
 }

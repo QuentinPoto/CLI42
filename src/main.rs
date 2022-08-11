@@ -1,72 +1,105 @@
 mod data;
-mod utils;
 mod inputs;
 mod makefile;
+mod utils;
+use data::Project;
+use makefile::{create_makefile, input_makefile};
 use utils::{get_current_working_dir, print_welcome};
-use data::{Project};
-use makefile::makefile;
 
 use inquire::{MultiSelect, Select, Text};
-use std::{env, fs, process};
+use std::{
+    env, fs,
+    process::{exit, Command},
+};
 
 // Idee : avoir un "config.json" avec des trucs preconfigurer
 //          et si le fichier n'existe pas, proposer de le remplir !!
 
-
 fn main() {
-    let mut project = Project::new();    
-    
-    /* Getting the inputs */
+    let mut project = Project::new();
     let args: Vec<String> = env::args().collect();
-    if args.len() == 2 {
-        input_err(1)
-    } else if args.len() == 3 {
-        if args[1] == "-p" {
-            // p comme simple programme
-            project.name = args[2].clone();
-            //TODO lance mes preset
-            process::exit(1);
-            //let project_name = args[2].clone();
+    match args.len() {
+        1 => input(&mut project),
+        2 => input_err(1),
+        3 => {
+            match &args[1][..] {
+                "-p" => {
+                    // p comme simple programme
+                    project.name = args[2].clone(); //TODO lance mes preset
+                    exit(1); //let project_name = args[2].clone();
+                }
+                _ => (),
+            }
         }
-    } else {
-         print_welcome();
-         project.name = inputs::project_name();
-         project.directory = inputs::project_directory(&project.name);
-         project.modules = inputs::project_modules();
+        _ => input_err(1),
     }
-   
-    /* Creating the shit */
-    fs::create_dir_all(&project.directory).unwrap();
-   
-    /* Modules */
-    match project.modules {
-        Some(modules) => {
-            if modules.contains(&"Makefile".to_string()) {
-                println!("make");
-                //makefile();
-            }
-            if modules.contains(&"Some c files".to_string()) {
-                println!("aure");
-            }
-            if modules.contains(&"GitInit".to_string()) {
-                println!("init");
-            }
-        },
-        None => {},
-    }
-
+    create(project);
 }
 
-fn c_init(directory: &String) {
-    println!("c init {}", directory);
-}
-
-fn git_init(directory: &String) {
-    println!("git init {}", directory);
-    //  sys send git init
-}
 fn input_err(code: u8) {
     if code == 1 {
         println!("not enough args... --help mes couilles");
+    }
+}
+
+fn input(project: &mut Project) {
+    print_welcome();
+    project.name = inputs::project_name();
+    project.directory = inputs::project_directory(&project.name);
+    project.modules = inputs::project_modules();
+
+    match project.modules {
+        None => (),
+        Some(ref mut modules) => {
+            if !modules.makefile.is_none() {
+                modules.makefile = Some(input_makefile());
+            }
+            if !modules.git.is_none() {
+                //modules.git = Some(input_git());
+            }
+            if !modules.files.is_none() {
+                //modules.files = Some(input_files()) ;
+            }
+        }
+    }
+}
+
+fn create(mut project: Project) {
+    fs::create_dir_all(&project.directory).unwrap();
+    match project.modules {
+        None => (),
+        Some(ref mut modules) => {
+            match modules.makefile {
+                Some(ref makefile) => create_makefile(makefile),
+                None => (),
+            };
+            match modules.files {
+                Some(ref _files) => {}
+                None => (),
+            };
+            match modules.git {
+                Some(ref _git) => {
+                    let pr = Command::new("sh")
+                        .arg("-c")
+                        .arg("git status")
+                        .output()
+                        .expect("caca git status");
+                    let res = std::str::from_utf8(&pr.stdout).expect("caca");
+                    let git_not_init_msg =
+                        "fatal: not a git repository (or any of the parent directories): .git";
+                    if res == git_not_init_msg {
+                        let cmd_init = Command::new("sh")
+                            .arg("-c")
+                            .arg("git init")
+                            .output()
+                            .expect("git init caca");
+                        println!("{}", std::str::from_utf8(&cmd_init.stdout).expect("caca2"));
+                    } else {
+                        println!("You already are in a git repo");
+                    }
+                }
+                None => (),
+            };
+        }
     }
 }
