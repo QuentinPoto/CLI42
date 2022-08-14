@@ -15,6 +15,17 @@ use std::{
 // Idee : avoir un "config.json" avec des trucs preconfigurer
 //          et si le fichier n'existe pas, proposer de le remplir !!
 
+// TODO : faire un i42 -um : update makefile, en fonction des fichiers,
+//          pareil pour le .h du projet
+//          si je suis la meme structure a chaque fois, il peut devenier commen
+//          updapter tout ce qu'il faut pour ca
+//
+// idee : mettre un flag devant les fonctions que je veut deplacer
+//      "/// nom_du_fichier.c - autre infos"
+//      ca permettrai de repartrir dans des .c, update le .h et le makefile...
+//
+//  TODO: le make file dans le bon folder !!
+
 fn main() {
     let mut project = Project::new();
     let args: Vec<String> = env::args().collect();

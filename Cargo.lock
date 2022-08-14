@@ -77,7 +77,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "init42"
+name = "i42"
 version = "0.1.0"
 dependencies = [
  "colored",
